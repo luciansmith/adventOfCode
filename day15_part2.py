@@ -4,6 +4,7 @@ import numpy as np
 grid = []
 #for line in open("day15_example.txt"):
 for line in open("day15_input.txt"):
+#for line in open("day15_simple_break.txt"):
     line = line.strip()
     vec = []
     for digit in line:
@@ -22,23 +23,42 @@ def lookup(grid, row, col):
         val = val-9
     return val
 
-prevrisk = []
+row = [np.inf]*len(grid[0])*5
+risk = []
+for n in range(len(grid)*5):
+    risk.append(row.copy())
 
-for row in [0]:#range(len(grid)*5):
-    riskline = []
-    for col in range(len(grid[0])*5):
-        if row==0:
-            if col==0:
-                riskline.append(0)
+def onePass(risk):
+    redo = False
+    for row in range(len(risk)):
+        for col in range(len(risk[0])):
+            if row==0 and col==0:
+                risk[row][col] = 0
             else:
-                riskline.append(riskline[col-1] + lookup(grid, row, col))
-        else:
-            if col==0:
-                riskline.append(prevrisk[col] + lookup(grid, row, col))
-            else:
-                riskline.append(min(prevrisk[col], riskline[col-1]) + lookup(grid, row, col))
-    prevrisk = copy.deepcopy(riskline)
-    print(riskline)
-            
-        
-lookup(grid, 48, 0)
+                orig = risk[row][col]
+                neighbors = []
+                if row > 0:
+                    neighbors.append(risk[row-1][col])
+                if col > 0:
+                    neighbors.append(risk[row][col-1])
+                if row < len(risk)-1:
+                    neighbors.append(risk[row+1][col])
+                if col < len(risk[0])-1:
+                    neighbors.append(risk[row][col+1])
+
+                risk[row][col] = min(neighbors) + lookup(grid, row, col)
+                if risk[row][col] < orig:
+                    redo = True
+                    # if orig != np.inf:
+                    #     print(neighbors, orig, risk[row][col])
+    return redo
+
+redo = onePass(risk)
+pnum = 0
+while (redo):
+    redo = onePass(risk)
+    pnum += 1
+    print(pnum)
+
+
+print(risk[-1])

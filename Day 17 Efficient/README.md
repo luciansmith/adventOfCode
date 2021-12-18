@@ -1,4 +1,6 @@
-Day 15:  How To Be Efficient
+Day 17:  How To Be Efficient
+
+From https://adventofcode.com/2021/day/17
 
 I should start off by saying that a simple brute-force search works pretty quickly for this challenge.  But the patterns in the data intrigued me, and I felt like I could find a more efficient solution.  This is the quixotic result of theat search ;-)
 
@@ -37,7 +39,3 @@ Once we get to the worse-case scenario of 'we have to move there in a single ste
 
 And that's it!
 
-
-
-
-1/2 N^2 + 1/2 N - xmax = 0

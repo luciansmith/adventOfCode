@@ -1,4 +1,4 @@
-example = False
+example = True
 
 input = {
     "xmin": 70,

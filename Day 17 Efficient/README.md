@@ -8,7 +8,9 @@ The first insight I had (which is implemented in my original solution (https://g
 
 The second insight is this:  If you can get X into the target range in N steps when its velocity is zero, the all values [N : inf] are also possible.
 
-The third insight is that if Y is positive, the missle will reach a Y value of exactly zero in 2Y+1 steps, having achieved a height of Y+! (I'm making up a notation here--I'm claiming that 'n+!' is the summation equivalent of a factorial).  From there, the next Y value it will visit is Y+1.  Thus, the largest initial value Y can have is Ymin-1, where Ymin is the lower bound of the target area.  Any higher Y value will overshoot the target area after reaching a value of 0 again.
+The third insight is that if Y is positive, the missle will reach a Y value of exactly zero in 2Y+1 steps, having achieved a height of the Yth triangular number.  From there, the next Y value it will visit is Y+1.  Thus, the largest initial value Y can have is -Ymin-1, where Ymin is the lower bound of the target area.  Any higher Y value will overshoot the target area after reaching a value of 0 again.
+
+[Side note:  Triangular numbers (https://en.wikipedia.org/wiki/Triangular_number) are the values obtained when adding 1 + 2 + ... + N, so (1, 3, 6, 10, ...).]
 
 Taken together, this means that if we want to find the initial trajectory that reaches the greatest height, we should start by assuming a Y value of Ymin-1.  This means checking X values to see if we can find any X value that can reach the target in 2(Ymin-1)+1 steps (aka 2Ymin-1).
 

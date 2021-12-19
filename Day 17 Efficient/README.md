@@ -1,12 +1,16 @@
-Day 15:  How To Be Efficient
+Day 17:  How To Be Efficient
 
-I should start off by saying that a simple brute-force search works pretty quickly for this challenge.  But the patterns in the data intrigued me, and I felt like I could find a more efficient solution.  This is the quixotic result of theat search ;-)
+From https://adventofcode.com/2021/day/17
 
-The first insight I had (which is implemented in my original solution (../day17.py) is this:  if you can get the Y value into the target range in N steps, and you can also get the X value into the target range in N steps, then (x,y) is one of the solutions to the problem.
+I should start off by saying that a simple brute-force search works pretty quickly for this challenge.  But the patterns in the data intrigued me, and I felt like I could find a more efficient solution.  This is the quixotic result of that search ;-)
+
+The first insight I had (which is implemented in my original solution (https://github.com/luciansmith/adventOfCode/blob/main/day17.py) is this:  if you can get the Y value into the target range in N steps, and you can also get the X value into the target range in N steps, then (x,y) is one of the solutions to the problem.
 
 The second insight is this:  If you can get X into the target range in N steps when its velocity is zero, the all values [N : inf] are also possible.
 
-The third insight is that if Y is positive, the missle will reach a Y value of exactly zero in 2Y+1 steps, having achieved a height of Y+! (I'm making up a notation here--I'm claiming that 'n+!' is the summation equivalent of a factorial).  From there, the next Y value it will visit is Y+1.  Thus, the largest initial value Y can have is Ymin-1, where Ymin is the lower bound of the target area.  Any higher Y value will overshoot the target area after reaching a value of 0 again.
+The third insight is that if Y is positive, the missle will reach a Y value of exactly zero in 2Y+1 steps, having achieved a height of the Yth triangular number.  From there, the next Y value it will visit is Y+1.  Thus, the largest initial value Y can have is -Ymin-1, where Ymin is the lower bound of the target area.  Any higher Y value will overshoot the target area after reaching a value of 0 again.
+
+[Side note:  Triangular numbers (https://en.wikipedia.org/wiki/Triangular_number) are the values obtained when adding 1 + 2 + ... + N, so (1, 3, 6, 10, ...).]
 
 Taken together, this means that if we want to find the initial trajectory that reaches the greatest height, we should start by assuming a Y value of Ymin-1.  This means checking X values to see if we can find any X value that can reach the target in 2(Ymin-1)+1 steps (aka 2Ymin-1).
 
@@ -37,7 +41,3 @@ Once we get to the worse-case scenario of 'we have to move there in a single ste
 
 And that's it!
 
-
-
-
-1/2 N^2 + 1/2 N - xmax = 0

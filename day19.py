@@ -23,6 +23,7 @@ class Scanner:
         self.distances.append([])
         
     def getPairWithDist(self, distance):
+        #Note: distance might not be unique; might be two pairs.
         ret = []
         for n1 in range(len(self.distances)):
             for n2 in range(len(self.distances[n1])):
@@ -32,17 +33,6 @@ class Scanner:
         if len(ret)<2:
             raise ValueError("Unable to find distance", distance)
         return ret
-    
-    def getSecondPairWithDist(self, distance):
-        first = True
-        for n1 in range(len(self.distances)):
-            for n2 in range(len(self.distances[n1])):
-                if self.distances[n1][n2] == distance:
-                    if first:
-                        first = False
-                    else:
-                        return (n1, n2+n1+1)
-        raise ValueError("Unable to find distance", distance)
     
     def getBeacon(self, n):
         return self.beacons[n]
@@ -116,14 +106,7 @@ class Scanner:
             elif otherB1 == oneOtherPairSet[n][1]:
                 otherBeacons.append(scanner2.getBeacon(oneOtherPairSet[n][0]))
             else:
-                #The distance was repeated--get the other one.
-                (c1, c2) = scanner2.getSecondPairWithDist(commonDistances[n])
-                if otherB1 == c1:
-                    otherBeacons.append(scanner2.getBeacon(c2))
-                elif otherB1 == c2:
-                    otherBeacons.append(scanner2.getBeacon(c1))
-                else:
-                    raise ValueError("Even the second distance gave us the wrong pair.")
+                raise ValueError("Even the second distance gave us the wrong pair.")
         if example:
             for n in range(len(selfBeacons)):
                 print(selfBeacons[n], ",", otherBeacons[n])
@@ -166,7 +149,6 @@ class Scanner:
             ret.addBeacon(newx, newy, newz)
         ret.absorbedScanners = self.absorbedScanners
         for otherScanner in scanner2.absorbedScanners:
-                    
             ret.absorbedScanners.append((otherScanner[0]-xoffset, otherScanner[1]-yoffset, otherScanner[2]-zoffset))
         
         return ret
@@ -184,9 +166,9 @@ def findTwoScannersToCombine(scanners):
                 best[1] = n1
                 best[2] = n2
                 best[3] = distoverlap
-    #There are examples with <12 overlapped scanners.
-    return (best[1], best[2], best[3])
-    # raise ValueError("Couldn't find two combinable scanners.")
+    #There are no examples with <12 overlapped scanners! Though it's not a problem for the algorithm if there were.  But we'll leave the error here as it indicates you have a bug.
+    # return (best[1], best[2], best[3])
+    raise ValueError("Couldn't find two combinable scanners.")
         
         
 

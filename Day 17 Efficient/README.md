@@ -4,7 +4,7 @@ From https://adventofcode.com/2021/day/17
 
 I should start off by saying that a simple brute-force search works pretty quickly for this challenge.  But the patterns in the data intrigued me, and I felt like I could find a more efficient solution.  This is the quixotic result of that search ;-)
 
-The first insight I had (which is implemented in my original solution (../day17.py) is this:  if you can get the Y value into the target range in N steps, and you can also get the X value into the target range in N steps, then (x,y) is one of the solutions to the problem.
+The first insight I had (which is implemented in my original solution (https://github.com/luciansmith/adventOfCode/blob/main/day17.py) is this:  if you can get the Y value into the target range in N steps, and you can also get the X value into the target range in N steps, then (x,y) is one of the solutions to the problem.
 
 The second insight is this:  If you can get X into the target range in N steps when its velocity is zero, the all values [N : inf] are also possible.
 

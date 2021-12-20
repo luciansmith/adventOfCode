@@ -1,8 +1,8 @@
-example = True
+example = False
 
 filename = "day12_input.txt"
 if example:
-    filename = "day12_example.txt"
+    filename = "day12_example2.txt"
 
 cavemap = {}
 capmap = {}
@@ -17,16 +17,21 @@ for line in open(filename):
     cavemap[left].append(right)
     cavemap[right].append(left)
 
-def explore(location, cavemap, visited):
+def explore(location, cavemap, visited, smalltwice):
     if location=="end":
         return [[location]]
     routes = []
     downvisits = visited.copy()
     downvisits.append(location)
     for nextcave in cavemap[location]:
-        if capmap[nextcave] and nextcave in visited:
+        st = smalltwice
+        if nextcave == "start":
             continue
-        for subroute in explore(nextcave, cavemap, downvisits):
+        if capmap[nextcave] and nextcave in visited:
+            if st:
+                continue
+            st = True
+        for subroute in explore(nextcave, cavemap, downvisits, st):
             if len(subroute)==0:
                 continue
             subroute.insert(0, location)
@@ -37,6 +42,8 @@ def explore(location, cavemap, visited):
         
 
 visited = []
-routes = explore("start", cavemap, visited)
-print(routes)
-print(len(routes))
+routes = explore("start", cavemap, visited, True)
+print("Without revisiting any cave:", len(routes))
+
+routes = explore("start", cavemap, visited, False)
+print("With one allowed cave revisit:", len(routes))

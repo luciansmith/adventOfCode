@@ -43,7 +43,7 @@ def explore(location, cavemap, visited, smalltwice):
 
 visited = []
 routes = explore("start", cavemap, visited, True)
-print("Without revisiting any cave:", len(routes))
+print("Without revisiting any small cave:", len(routes))
 
 routes = explore("start", cavemap, visited, False)
-print("With one allowed cave revisit:", len(routes))
+print("With one allowed small cave revisit:", len(routes))

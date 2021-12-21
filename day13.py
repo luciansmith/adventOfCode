@@ -61,11 +61,11 @@ def applyFold(grid, axis, val):
         return newgrid
     raise ValueError("Unknown fold axis.")
 
-print(grid)
+# print(grid)
 for fold in folds:
     grid = applyFold(grid, fold[0], int(fold[1]))
     grid = np.where(grid > 0, 1, 0)
-    print(grid)
+    # print(grid)
     print(sum(sum(grid)))
 
 paper = ""

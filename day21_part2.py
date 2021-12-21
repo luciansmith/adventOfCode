@@ -55,7 +55,7 @@ def getNumActiveUniverses(scorepos):
     return ret
 
 def multiplyUniverses(scorepos, newUniverseNumber, prevUniverseNumber):
-    print(newUniverseNumber/prevUniverseNumber)
+    # print(newUniverseNumber/prevUniverseNumber)
     for sp in scorepos:
         scorepos[sp] = scorepos[sp]*newUniverseNumber/prevUniverseNumber
 
@@ -63,7 +63,7 @@ p1wins = 0
 p2wins = 0
 rollfreqs = [(3,1), (4,3), (5,6), (6,7), (7,6), (8,3), (9,1)]
 
-while(len(scorepos1) and len(scorepos2)):
+while(True):
     new_sp1 = []
     for (roll, freq) in rollfreqs:
         new_sp1.append(rollAndAdd(roll, scorepos1, freq))

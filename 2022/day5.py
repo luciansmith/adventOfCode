@@ -34,7 +34,7 @@ for line in crates:
 
 print(stacks)
 
-
+# Part 1:
 # for (num, frm, to) in rules:
 #     for mv in range(num):
 #         stacks[to].insert(0, stacks[frm][0])

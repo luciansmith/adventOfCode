@@ -5,7 +5,6 @@ Created on Thu Dec  1 11:54:30 2022
 @author: Lucian
 """
 
-import copy
 import time
 
 begin = time.perf_counter()
@@ -14,9 +13,9 @@ caverow = [0]*1000
 cave = [caverow]
 
 def addCaveRowsTo(cave, val):
-    caverow = [0]*1000
     while len(cave) < val+1:
-        cave.append(copy.copy(caverow))
+        caverow = [0]*1000
+        cave.append(caverow)
 
 def printSmallCave(cave):
     for n in range(len(cave)):

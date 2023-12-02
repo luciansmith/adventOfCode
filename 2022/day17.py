@@ -28,8 +28,8 @@ rock5 = [[1,1],
 rocks = [rock1, rock2, rock3, rock4, rock5]
 
 jets = ""
-#for line in open("day17_input.txt"):
-for line in open("day17_example.txt"):
+for line in open("day17_input.txt"):
+#for line in open("day17_example.txt"):
     line = line.strip()
     jets = jets + line
 
@@ -140,16 +140,19 @@ while n < targetN:
         jetIndex += 1
         if jetIndex == len(jets):
             print("Jet repeat", n)
-            printPit(pit)
+            # printPit(pit)
             pitcopy = copy.deepcopy(pit)
             if len(jetZeroPit) and pitcopy == jetZeroPit[0]:
                 print("Repeat at", n)
                 skipRepeat = True
                 loop = n - jetZeroPit[1]
-                skip = targetN-n
-                skip = np.floor(skip/loop)
-                n += skip * loop
-                removedPit += skip * (removedPit - jetZeroPit[2])
+                removedPitLoop = removedPit - jetZeroPit[2]
+                print(removedPit)
+                print("loops:", loop, removedPitLoop)
+                # skip = targetN-n
+                # skip = np.floor(skip/loop)
+                # n += skip * loop
+                # removedPit += skip * removedPitLoop
             else:
                 jetZeroPit = (pitcopy, n, removedPit)
             jetIndex = 0
@@ -178,3 +181,5 @@ while n < targetN:
         
 
 print(len(pit)-1, removedPit, removedPit+len(pit)-1)
+print("Last guess 1535446685864 was too high")
+print(1535446685864 > removedPit+len(pit)-1)

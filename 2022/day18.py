@@ -46,32 +46,32 @@ for air in airSet:
     airNeighbors[air] = [0, []]
     if (x+1, y, z) in cubes:
         airNeighbors[air][0] += 1
-    if (x+1, y, z) in air:
+    if (x+1, y, z) in airSet:
         airNeighbors[air][1].append((x+1, y, z))
 
     if (x, y+1, z) in cubes:
         airNeighbors[air][0] += 1
-    if (x, y+1, z) in air:
+    if (x, y+1, z) in airSet:
         airNeighbors[air][1].append((x, y+1, z))
 
     if (x, y, z+1) in cubes:
         airNeighbors[air][0] += 1
-    if (x, y, z+1) in air:
+    if (x, y, z+1) in airSet:
         airNeighbors[air][1].append((x, y, z+1))
 
     if (x-1, y, z) in cubes:
         airNeighbors[air][0] += 1
-    if (x-1, y, z) in air:
+    if (x-1, y, z) in airSet:
         airNeighbors[air][1].append((x-1, y, z))
 
     if (x, y-1, z) in cubes:
         airNeighbors[air][0] += 1
-    if (x, y-1, z) in air:
+    if (x, y-1, z) in airSet:
         airNeighbors[air][1].append((x, y-1, z))
 
     if (x, y, z-1) in cubes:
         airNeighbors[air][0] += 1
-    if (x, y, z-1) in air:
+    if (x, y, z-1) in airSet:
         airNeighbors[air][1].append((x, y, z-1))
     
 def isPocket(air, airNeighbors, used):
@@ -113,4 +113,4 @@ for air in airNeighbors:
             
             
 print(exposed)
-    
+#2882 is too high

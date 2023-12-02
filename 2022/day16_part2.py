@@ -31,7 +31,7 @@ def travelFromTo(curr, dest, valves):
     (__, links) = valves[curr]
     if dest in links:
         return [dest]
-    plans = []
+    paths = []
     visited = {curr}
     for link in links:
         (__, newlinks) = valves[link]
@@ -42,95 +42,268 @@ def travelFromTo(curr, dest, valves):
             if newlink in visited:
                 continue
             visited.add(newlink)
-            plans.append([link, newlink])
+            paths.append([link, newlink])
     while True:
-        newplans = []
-        for plan in plans:
-            (__, newlinks) = valves[plan[-1]]
+        newpaths = []
+        for path in paths:
+            (__, newlinks) = valves[path[-1]]
             if dest in newlinks:
-                plan.append(dest)
-                return plan
+                path.append(dest)
+                return path
             for newlink in newlinks:
                 if newlink in visited:
                     continue
-                newplan = copy.copy(plan)
-                newplan.append(newlink)
-                newplans.append(newplan)
+                newpath = copy.copy(path)
+                newpath.append(newlink)
+                newpaths.append(newpath)
                 visited.add(newlink)
-        plans = newplans
+        paths = newpaths
 
-def planIsNotEfficient(plan, valves, closedvalves):
-    length = len(plan)
+def pathIsNotEfficient(path, valves, closedvalves, othergoal, n):
+    length = len(path)
+    if length >= 25-n:
+        return True
     if length==1:
         return False
-    netPressure = valves[plan[-1]][0]
+    netPressure = valves[path[-1]][0]
     for n in range(length):
-        if plan[n] in closedvalves:
-            altPressure = valves[plan[n]][0]*(length-n)
+        if path[n] in closedvalves and path[n] != othergoal:
+            altPressure = valves[path[n]][0]*(length-n)
             if altPressure > netPressure:
                 return True
     return False
 
+def cullPaths(paths, n, valves):
+    newpaths = []
+    bestPressure = 0
+    for path in paths:
+        (pos1, action1, pos2, action2, pressure, closedvalves) = path[-1]
+        if pressure > bestPressure:
+            bestPressure = pressure
+    for path in paths:
+        (pos1, action1, pos2, action2, pressure, closedvalves) = path[-1]
+        pressurelist = []
+        for valve in closedvalves:
+            pressurelist.append(valves[valve][0])
+        pressurelist.sort()
+        possiblePressure = 0
+        for loop in range(0, len(pressurelist), 2):
+            #Pretend we can get to them as efficiently as possible:
+            possiblePressure += pressurelist[loop]*(25-n)
+            try:
+                possiblePressure += pressurelist[loop+1]*(25-n)
+            except:
+                pass
+        if possiblePressure + pressure >= bestPressure:
+            newpaths.append(path)
+    return newpaths
+
+def isPathUnique(path):
+    lastpath = path[-1]
+    if type(lastpath[1]) == list:
+        if(lastpath[1][-1] == lastpath[3][-1]):
+            printPath(path)
+            return False
+    return True
+            
+
 def printPath(path):
-    for (pos, action, pressure, closedvalves) in path:
-        print(pos, action, pressure)
+    for (pos1, action1, pos2, action2, pressure, closedvalves) in path:
+        print(pos1, action1, pos2, action2, pressure)
     print(closedvalves)
 
-def getNewPathsFor(path, otherpath, newpaths):
-    (pos, action, pressure, closedvalves) = path[-1]
-    if len(closedvalves) == 0:
-        #We're done; just hang out.
-        newpaths.append(path)
-        return
-    (rate, links) = valves[pos]
-    if pos == action[-1]:
-        #Open the valve
-        newpath = copy.deepcopy(path)
-        newpressure = rate * (29 - n)
-        newclosedvalves = copy.deepcopy(closedvalves)
-        newclosedvalves.remove(pos)
-        newpath.append((pos, "open", pressure+newpressure, newclosedvalves))
-        newpaths.append(newpath)
-    elif action == "open" or action == "start":
-        for valve in closedvalves:
-            #Head to one of the closed valves:
-            newaction = travelFromTo(pos, valve, valves)
-            if planIsNotEfficient(newaction, valves, closedvalves):
-                continue
-            #We travel along the action plan.
-            newpos = newaction[0]
-            newpath = copy.deepcopy(path)
-            newpath.append((newpos, newaction, pressure, copy.deepcopy(closedvalves)))
-            newpaths.append(newpath)
-    else:
-        #Continue heading to your destination:
-        newaction = copy.copy(action)
-        newaction.remove(newaction[0])
-        newpos = newaction[0]
-        newpath = copy.deepcopy(path)
-        newpath.append((newpos, newaction, pressure, copy.deepcopy(closedvalves)))
-        newpaths.append(newpath)
-
-paths = [[(("AA", "start", 0, closedvalves),("AA", "start", 0, closedvalves))]]
+paths = [[("AA", "start", "AA", "start", 0, closedvalves)]]
 for n in range(26):
     print("Step", n)
     newpaths = []
-    for (mepath, elpath) in paths:
-        mepaths = getNewPathsFor(mepath, elpath, newpaths)
-        elpaths = getNewPathsFor(elpath, mepath, newpaths)
-            
+    for path in paths:
+        (pos1, action1, pos2, action2, pressure, closedvalves) = path[-1]
+        if len(closedvalves) == 0:
+            #We're done; just hang out.
+            newpaths.append(path)
+            continue
+        (rate1, links1) = valves[pos1]
+        (rate2, links2) = valves[pos2]
+        newpos1 = ""
+        newaction1 = ""
+        newpos2 = ""
+        newaction2 = ""
+        newpressure = pressure
+        newclosedvalves = copy.deepcopy(closedvalves)
+        newpath = copy.deepcopy(path)
+        
+        #Deal with human:
+        posactionlist1 = []
+        if pos1 == action1[-1]:
+            #Open the valve
+            newpressure += rate1 * (25 - n)
+            newclosedvalves.remove(pos1)
+            newpos1 = pos1
+            newaction1 = "open"
+        elif action1 == "open" or action1 == "start" or action1 == "stop":
+            othergoal = ""
+            if (len(action2)):
+                othergoal = action2[-1]
+            for valve in closedvalves:
+                #Head to one of the closed valves:
+                if valve == othergoal:
+                    #The elephant is already handling this one.
+                    if len(closedvalves) == 1:
+                        #check to see if we can get there first.
+                        newaction = travelFromTo(pos1, valve, valves)
+                        if len(newaction) < len(action2)-1:
+                            #I dunno; maybe deal with it?
+                            print(newaction, action2)
+                            # assert(False)
+                        newpos1 = pos1
+                        newaction1 = "stop"
+                    continue
+                newaction = travelFromTo(pos1, valve, valves)
+                if pathIsNotEfficient(newaction, valves, closedvalves, othergoal, n):
+                    continue
+                newpos = newaction[0]
+                #We travel to link.
+                posactionlist1.append((newpos, newaction))
+            if len(posactionlist1) == 0:
+                newpos1 = pos1
+                newaction1 = "stop"
+        else:
+            #Continue heading to your destination:
+            newaction1 = copy.copy(action1)
+            newaction1.remove(newaction1[0])
+            newpos1 = newaction1[0]
+
+        #Deal with elephant:
+        if len(newclosedvalves) == 0:
+            #We're done; just hang out.
+            newpath.append((newpos1, newaction1, pos2, action2, newpressure, newclosedvalves))
+            newpaths.append(newpath)
+            newpaths.append(path)
+            continue
+        posactionlist2 = []
+        if pos2 == action2[-1]:
+            #Open the valve
+            newpressure += rate2 * (25 - n)
+            newclosedvalves.remove(pos2)
+            newpos2 = pos2
+            newaction2 = "open"
+        elif action2 == "open" or action2 == "start" or action2 == "stop":
+            othergoal = ""
+            if len(newaction1):
+                othergoal = newaction1[-1]
+            for valve in newclosedvalves:
+                #Head to one of the closed valves:
+                if valve == othergoal:
+                    #The human has this one covered
+                    if len(closedvalves) == 1:
+                        #check to see if we can get there first.
+                        newaction = travelFromTo(pos2, valve, valves)
+                        if len(newaction) < len(action2)-1:
+                            #I dunno; maybe deal with it?
+                            print(newaction, action2)
+                            # assert(False)
+                        newpos2 = pos2
+                        newaction2 = "stop"
+                    continue
+                newaction = travelFromTo(pos2, valve, valves)
+                if pathIsNotEfficient(newaction, valves, newclosedvalves, othergoal, n):
+                    # print("Not", newaction)
+                    continue
+                newpos = newaction[0]
+                #We travel to link.
+                posactionlist2.append((newpos, newaction))
+            if len(posactionlist2) == 0:
+                newpos2 = pos2
+                newaction2 = "stop"
+        else:
+            #Continue heading to your destination:
+            newaction2 = copy.copy(action2)
+            newaction2.remove(newaction2[0])
+            newpos2 = newaction2[0]
+
+        #Deal with splitting of new paths:
+        if len(posactionlist1) == 1:
+            newpos1 = posactionlist1[0][0]
+            newaction1 = posactionlist1[0][1]
+            posactionlist1.clear()
+        if len(posactionlist2) == 1:
+            newpos2 = posactionlist2[0][0]
+            newaction2 = posactionlist2[0][1]
+            posactionlist2.clear()
+            if len(newaction1) and newaction2[-1] == newaction1[-1]:
+                if len(newaction2) > len(newaction1):
+                    newaction1 = "stop"
+                else:
+                    newaction2 = "stop"
+        assert(len(newaction1) or len(posactionlist1))
+        assert(len(newaction2) or len(posactionlist2))
+        if len(posactionlist1) == 0 and len(posactionlist2) == 0:
+            newpath.append((newpos1, newaction1, newpos2, newaction2, newpressure, newclosedvalves))
+            assert(isPathUnique(newpath))
+            newpaths.append(newpath)
+        elif len(posactionlist2) == 0:
+            for (newpos1, newaction1) in posactionlist1:
+                if newaction1[-1] == newaction2[-1]:
+                    continue
+                newpath = copy.deepcopy(path)
+                newpath.append((newpos1, newaction1, newpos2, newaction2, newpressure, copy.deepcopy(newclosedvalves)))
+                assert(isPathUnique(newpath))
+                newpaths.append(newpath)
+        elif len(posactionlist1) == 0:
+            for (newpos2, newaction2) in posactionlist2:
+                if newaction1[-1] == newaction2[-1]:
+                    continue
+                newpath = copy.deepcopy(path)
+                newpath.append((newpos1, newaction1, newpos2, newaction2, newpressure, copy.deepcopy(newclosedvalves)))
+                assert(isPathUnique(newpath))
+                newpaths.append(newpath)
+        else:
+            #Both human and elephant have a new set of places to visit.
+            if pos1 == pos2:
+                #If we're starting from the same place, divvy things up randomly
+                for posaction in posactionlist2:
+                    if posaction in posactionlist1:
+                        continue
+                    else:
+                        assert(False)
+                        #How?  But OK.
+                        posactionlist1.append(posaction)
+                for n in range(len(posactionlist1)-1):
+                    (newpos1, newaction1) = posactionlist1[n]
+                    for m in range(n+1, len(posactionlist1)):
+                        (newpos2, newaction2) = posactionlist1[m]
+                        newpath = copy.deepcopy(path)
+                        newpath.append((newpos1, newaction1, newpos2, newaction2, newpressure, copy.deepcopy(newclosedvalves)))
+                        assert(isPathUnique(newpath))
+                        newpaths.append(newpath)
+            else:
+                #If we start from different places, go all places unless other is already going there.
+                for (newpos1, newaction1) in posactionlist1:
+                    dest = newaction1[-1]
+                    for (newpos2, newaction2) in posactionlist2:
+                        if dest == newaction2[-1]:
+                            #Don't both go to the same place
+                            continue
+                        newpath = copy.deepcopy(path)
+                        newpath.append((newpos1, newaction1, newpos2, newaction2, newpressure, copy.deepcopy(newclosedvalves)))
+                        assert(isPathUnique(newpath))
+                        newpaths.append(newpath)
+                        
+                    
+        
     # for path in newpaths:
     #     printPath(path)
+    # paths = cullPaths(newpaths, n, valves)
     paths = newpaths
+
+
 
 mostpressure = 0
 for path in paths:
-    (__, __, pressure, __) = path[-1]
+    (__, __, __, __, pressure, __) = path[-1]
     if pressure > mostpressure:
         mostpressure = pressure
-        print(path)
+        printPath(path)
 
 print(mostpressure)
-
-path1, path2
-create new paths for path1, taking path2 into consideration
+#2024 is too low
